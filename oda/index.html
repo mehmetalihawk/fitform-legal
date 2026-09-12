@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FitForm AI — Odaya katıl</title>
+<meta name="description" content="FitForm AI kapışma odasına katıl.">
+<style>
+  :root {
+    --ink: #121214;
+    --canvas: #F6F6F4;
+    --card: #FFFFFF;
+    --lime: #B5F04C;
+    --muted: #70707A;
+    --hair: #E4E4E0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: var(--canvas);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--card);
+    border: 1px solid var(--hair);
+    border-radius: 20px;
+    padding: 28px 24px 24px;
+    text-align: center;
+  }
+  h1 { font-size: 22px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  p { margin: 0 0 18px; color: var(--muted); font-size: 15px; }
+  .code {
+    display: inline-block;
+    font-size: 34px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    padding: 12px 18px 12px 24px;
+    margin-bottom: 18px;
+    border-radius: 14px;
+    background: var(--canvas);
+    border: 1px solid var(--hair);
+  }
+  .code.missing { font-size: 20px; letter-spacing: normal; padding-left: 18px; }
+  a.button {
+    display: block;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 15px 18px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .primary { background: var(--ink); color: #FFF; }
+  .secondary { background: var(--lime); color: var(--ink); }
+  .hint { font-size: 13px; color: var(--muted); margin: 14px 0 0; }
+  footer { margin-top: 18px; font-size: 12px; color: var(--muted); }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+  <main class="card">
+    <h1>Kapışmaya davet edildin</h1>
+    <p>FitForm AI'da bir şınav odası seni bekliyor.</p>
+
+    <div class="code missing" id="code">Kod bulunamadı</div>
+
+    <a class="button primary" id="open" href="#">Uygulamada aç</a>
+    <a class="button secondary" id="store"
+       href="https://apps.apple.com/tr/app/id6809174094">App Store'dan indir</a>
+
+    <p class="hint" id="hint">
+      Uygulama açılmazsa yüklü değildir. İndirdikten sonra bu sayfaya geri
+      dön ya da kodu Vs sekmesine elle yaz.
+    </p>
+
+    <footer>
+      <a href="../">Gizlilik ve kullanım koşulları</a>
+    </footer>
+  </main>
+
+<script>
+  // Kod bağlantıdan geliyor: .../oda/?kod=AB12C
+  var params = new URLSearchParams(window.location.search);
+  var raw = (params.get('kod') || '').trim().toUpperCase();
+  var code = /^[A-Z0-9]{5}$/.test(raw) ? raw : null;
+
+  var codeBox = document.getElementById('code');
+  var open = document.getElementById('open');
+
+  if (code) {
+    codeBox.textContent = code;
+    codeBox.classList.remove('missing');
+    // Uygulamanın kendi şeması. Uygulama yüklü değilse iOS hiçbir şey
+    // yapmıyor; kullanıcı mağaza düğmesini görmeye devam ediyor.
+    var deepLink = 'fitformai://vs?kod=' + encodeURIComponent(code);
+    open.setAttribute('href', deepLink);
+
+    // Otomatik deneme: sayfa açılır açılmaz uygulamayı çağır. Başarılıysa
+    // sayfa arka plana düşüyor ve kullanıcı zaten odada oluyor.
+    window.setTimeout(function () {
+      window.location.href = deepLink;
+    }, 400);
+  } else {
+    open.style.display = 'none';
+    document.getElementById('hint').textContent =
+      'Bağlantıda oda kodu yok. Arkadaşından bağlantıyı yeniden iste.';
+  }
+</script>
+</body>
+</html>
