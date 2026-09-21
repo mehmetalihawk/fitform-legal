@@ -88,15 +88,34 @@
   </main>
 
 <script>
-  // Kod bağlantıdan geliyor: .../oda/?kod=AB12C
+  // İki tür bağlantı var:
+  //   .../oda/?kod=AB12C     → canlı oda daveti (arkadaşın seni bekliyor)
+  //   .../oda/?meydan=<yuk>  → hikâyeden meydan okuma (asenkron; skor
+  //                            bağlantının içinde, karşı tarafın o an
+  //                            telefon başında olması gerekmiyor)
   var params = new URLSearchParams(window.location.search);
   var raw = (params.get('kod') || '').trim().toUpperCase();
   var code = /^[A-Z0-9]{5}$/.test(raw) ? raw : null;
+  var meydan = (params.get('meydan') || '').trim();
+  // Yük base64url: yalnızca bu karakterler beklenir. Uzun ya da tuhaf
+  // bir değer uygulamaya HİÇ taşınmıyor.
+  var meydanOk = /^[A-Za-z0-9_-]{8,400}$/.test(meydan) ? meydan : null;
 
   var codeBox = document.getElementById('code');
   var open = document.getElementById('open');
 
-  if (code) {
+  if (meydanOk) {
+    codeBox.textContent = 'MEYDAN OKUMA';
+    codeBox.classList.remove('missing');
+    var meydanLink = 'fitformai://vs?meydan=' + encodeURIComponent(meydanOk);
+    open.setAttribute('href', meydanLink);
+    document.getElementById('hint').textContent =
+      'Uygulama açılınca 2 dakikalık maçın başlıyor. Uygulaman yoksa ' +
+      'aşağıdan indir, sonra bağlantıya tekrar dokun.';
+    window.setTimeout(function () {
+      window.location.href = meydanLink;
+    }, 400);
+  } else if (code) {
     codeBox.textContent = code;
     codeBox.classList.remove('missing');
     // Uygulamanın kendi şeması. Uygulama yüklü değilse iOS hiçbir şey
@@ -112,7 +131,8 @@
   } else {
     open.style.display = 'none';
     document.getElementById('hint').textContent =
-      'Bağlantıda oda kodu yok. Arkadaşından bağlantıyı yeniden iste.';
+      'Bağlantıda oda kodu ya da meydan okuma yok. Arkadaşından ' +
+      'bağlantıyı yeniden iste.';
   }
 </script>
 </body>
